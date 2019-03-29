@@ -1,0 +1,13 @@
+
+# intellij
+.idea
+*.iml
+
+# libre-office
+.~lock.*#
+
+# kde
+.kate-swp
+
+# java compiler
+/out

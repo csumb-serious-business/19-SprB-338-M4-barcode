@@ -12,3 +12,5 @@
 # java compiler
 /out
 /bin/
+
+/.*

@@ -1,9 +1,11 @@
+
 /* ------------------------------------------------------------------------- *\
 Authors:    C Ahangama, J Asato, M Robertson, R Talmage
 Class:      CST338
 Assignment: M4 Optical Barcode Readers
 Date:       4/2/2019
 \* ------------------------------------------------------------------------- */
+import java.util.*;
 
 interface BarcodeIO {
 	public boolean scan(BarcodeImage bc);
@@ -65,10 +67,12 @@ public class Assig4 {
 		            "                                          "
 
 		      };
-
-		System.out.print("Start");
+		System.out.println("DEBUG::Start of Run");
 		BarcodeImage bc = new BarcodeImage(sImageIn);
+		System.out.println("DEBUG::Before just on the Intake");
 		bc.display();
+
+		System.out.println("DEBUG::After Scanning and Cleaing");
 		DataMatrix dm = new DataMatrix(bc);
 
 		// First secret message
@@ -84,7 +88,7 @@ public class Assig4 {
 		dm.displayImageToConsole();
 
 		// create your own message
-		dm.readText("What a great resume builder this is!");
+		dm.readText("DEBUG::What a great resume builder this is!");
 		dm.generateImageFromText();
 		dm.displayTextToConsole();
 		dm.displayImageToConsole();
@@ -215,11 +219,19 @@ class DataMatrix implements BarcodeIO {
 	}
 
 	public boolean translateImageToText() {
+		String message = "";
+		int start = 1; // Ingore the skeleton
+		for (int iOfColumns = start; iOfColumns < actualWidth - 1; iOfColumns++) {
+			message += readCharfromCol(iOfColumns);
+		}
+
+		text = message;
 
 		return false;
 	}
 
 	public void displayTextToConsole() {
+		System.out.println("    " + this.text);
 
 	}
 
@@ -329,8 +341,27 @@ class DataMatrix implements BarcodeIO {
 		return heightCount;
 	}
 
-	private char readCharFromCol(int col) {
-		return 'a';
+	private char readCharfromCol(int col) {
+		int numVal = 0;
+		int maxHeight = actualHeight - 2;// Exclude bottom and top
+		int adjustedRowIndex = image.MAX_HEIGHT - 1;
+		List<Integer> l1 = new ArrayList<Integer>();
+		for (int i = 0; i < maxHeight; i++) {
+			int nRow = adjustedRowIndex - (i + 1); // i+1 because we want to
+													// start from the one after
+													// the skeleton
+			if (image.getPixel(nRow, col)) // If it is a solid * then we
+											// continue
+			{
+				l1.add((int) (Math.pow(2, i))); // Since this binary add to list
+												// of values
+			}
+		}
+		for (Integer value : l1) { // Interate the list
+			numVal += value;
+		}
+
+		return ((char) numVal); // return as a char for the valid ascii number
 	}
 
 	private boolean WriteCharToCol(int col, int code) {

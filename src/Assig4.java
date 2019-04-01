@@ -100,14 +100,24 @@ class BarcodeImage implements Cloneable {
 		this();
 
 		// Todo Check Size
-		for (int iRow = 0; iRow < strIn.length; iRow++) //For each item in the array
+		for (int iRow = 0; iRow < strIn.length; iRow++) // For each item in the
+														// array
 		{
 			int numOfColums = strIn[0].length();
-			
-			for (int iColumn = 0; iColumn < numOfColums; iColumn++) // How many in each item in the array (row items)
+
+			for (int iColumn = 0; iColumn < numOfColums; iColumn++) // How many
+																	// in each
+																	// item in
+																	// the array
+																	// (row
+																	// items)
 			{
 				char[] raw = strIn[iRow].toCharArray();
-				int rowIndex = MAX_HEIGHT - (strIn.length - iRow); //This way we cut down on the extra spacing 
+				int rowIndex = MAX_HEIGHT - (strIn.length - iRow); // This way
+																	// we cut
+																	// down on
+																	// the extra
+																	// spacing
 				if (raw[iColumn] == '*') {
 					setPixel(rowIndex, iColumn, true);
 				} else {
@@ -158,27 +168,23 @@ class BarcodeImage implements Cloneable {
 		return returnBC;
 
 	}
-	
-	public void display() {
-		      int iRow, iCol;
-		      System.out.println();
-		      for(iRow = 0; iRow < MAX_HEIGHT; iRow++)
-		      {
-		         System.out.print("|"+iRow+"|");
-		         for(iCol = 0; iCol < MAX_WIDTH; iCol++)
-		         {
-		            if(getPixel(iRow, iCol) == true) 
-		            {
-		               System.out.print("*");
-		            } else {
-		               System.out.print(" ");
-		            }
-		         }
-		         System.out.println();
-		      }
-		   }
 
-		
+	public void display() {
+		int iRow, iCol;
+		System.out.println();
+		for (iRow = 0; iRow < MAX_HEIGHT; iRow++) {
+			System.out.print("|" + iRow + "|");
+			for (iCol = 0; iCol < MAX_WIDTH; iCol++) {
+				if (getPixel(iRow, iCol) == true) {
+					System.out.print("*");
+				} else {
+					System.out.print(" ");
+				}
+			}
+			System.out.println();
+		}
+	}
+
 }
 
 class DataMatrix implements BarcodeIO {
@@ -189,7 +195,6 @@ class DataMatrix implements BarcodeIO {
 	private int actualWidth, actualHeight = 0;
 	private String text;
 	private static final String defText = "undefined";
-	
 
 	public DataMatrix() {
 		image = new BarcodeImage();
@@ -223,17 +228,15 @@ class DataMatrix implements BarcodeIO {
 	}
 
 	public boolean scan(BarcodeImage imageIN) {
-		 try 
-	      {
-	         this.image = (BarcodeImage) imageIN.clone();
-	         cleanImage(); //Adjusting to the left bottom
-	         actualHeight = computeSignalHeight();
-	 	     actualWidth = computeSignalWidth();
-	      } catch(CloneNotSupportedException e)
-	      {
-	       
-	      }
-	      return true;
+		try {
+			this.image = (BarcodeImage) imageIN.clone();
+			cleanImage(); // Adjusting to the left bottom
+			actualHeight = computeSignalHeight();
+			actualWidth = computeSignalWidth();
+		} catch (CloneNotSupportedException e) {
+
+		}
+		return true;
 	}
 
 	public boolean readText(String _) {
@@ -246,83 +249,92 @@ class DataMatrix implements BarcodeIO {
 
 	// Private Helpers For image manipulation to move it to the left bottom
 	private void cleanImage() {
-		   //Temp Holders to get the Starting point of the image before the optimiztion
-		   int rowStart=0, colStart = 0;
-		   
-		   outter:
-		   for (int indexHorizontal = BarcodeImage.MAX_HEIGHT-1; indexHorizontal >= 0; indexHorizontal--) 
-		   {
-		
-			   for (int indexVertical = 0; indexVertical < BarcodeImage.MAX_WIDTH; indexVertical++) {
-				   if (image.getPixel(indexHorizontal, indexVertical)) //Pixel detected
-				   {
-					   if(rowStart == 0 && colStart == 0)//Check if the we are at the start 
-					   {
-						 //Hold the value of where the first pixel is detected
-						   rowStart = indexHorizontal; 
-						   colStart = indexVertical;
-						   break  outter;//If detected break out of the outter loop
-					   }
-				   }
-			   }
-		   }
-		   
-	
-		   for (int indexVeriticle = 0; indexVeriticle < BarcodeImage.MAX_HEIGHT; indexVeriticle++) {
-			   for (int indexHorizontal = 0; indexHorizontal < BarcodeImage.MAX_WIDTH; indexHorizontal++) {
-				   if(rowStart - indexVeriticle >= 0) //Can not be a negative 
-				   {
-					   if( colStart + indexHorizontal < BarcodeImage.MAX_WIDTH) // Has to be less that the width 
-					   {
-						   //Mapping the old to new position
-						   int newRow = BarcodeImage.MAX_HEIGHT-indexVeriticle-1; //Start at the top
-						   int newCol = indexHorizontal;
-						   
-						   int oldRow = rowStart-indexVeriticle; //Go Up
-						   int oldCol = colStart+indexHorizontal; //Go Right
-						   
-						   image.setPixel(newRow , newCol, image.getPixel(oldRow, oldCol));
-					   }
-				   }
-			   }
-		   }
-		    image.display(); //debugging
-	   }
-	
-	//Todo: rough idea
-	 int computeSignalWidth() {
-	      int leftCornerRow = image.MAX_HEIGHT-1;
-	      int widthCount = 0;
-	      for(int indexColumn=0; indexColumn<image.MAX_WIDTH; indexColumn++) 
-	      { //Keep going right
-	         if(image.getPixel(leftCornerRow, indexColumn)) 
-	         {
-	            widthCount++;
-	         }
-	      }	      
-		 return widthCount;
-	 }
+		// Temp Holders to get the Starting point of the image before the
+		// optimiztion
+		int rowStart = 0, colStart = 0;
 
-	 //Todo: rough idea
-	 int computeSignalHeight() {
-	      int leftCornerCol = 0;
-	      int heightCount = 0;
-	      for(int indexRow=0; indexRow<image.MAX_HEIGHT; indexRow++) 
-	      { //Keep going up
-	         if(image.getPixel(indexRow,  leftCornerCol)) 
-	         {
-	        	 heightCount ++;
-	         }
-	      }	      
-		 return  heightCount;
-	 }
+		outter: for (int indexHorizontal = BarcodeImage.MAX_HEIGHT - 1; indexHorizontal >= 0; indexHorizontal--) {
 
-	 private char readCharFromCol(int col) {
-		 return 'a';
-	 }
+			for (int indexVertical = 0; indexVertical < BarcodeImage.MAX_WIDTH; indexVertical++) {
+				if (image.getPixel(indexHorizontal, indexVertical)) // Pixel
+																	// detected
+				{
+					if (rowStart == 0 && colStart == 0)// Check if the we are at
+														// the start
+					{
+						// Hold the value of where the first pixel is detected
+						rowStart = indexHorizontal;
+						colStart = indexVertical;
+						break outter;// If detected break out of the outter loop
+					}
+				}
+			}
+		}
 
-	 private boolean WriteCharToCol(int col, int code){
-		 return true;
-	 }
+		for (int indexVeriticle = 0; indexVeriticle < BarcodeImage.MAX_HEIGHT; indexVeriticle++) {
+			for (int indexHorizontal = 0; indexHorizontal < BarcodeImage.MAX_WIDTH; indexHorizontal++) {
+				if (rowStart - indexVeriticle >= 0) // Can not be a negative
+				{
+					if (colStart + indexHorizontal < BarcodeImage.MAX_WIDTH) // Has
+																				// to
+																				// be
+																				// less
+																				// that
+																				// the
+																				// width
+					{
+						// Mapping the old to new position
+						int newRow = BarcodeImage.MAX_HEIGHT - indexVeriticle - 1; // Start
+																					// at
+																					// the
+																					// top
+						int newCol = indexHorizontal;
+
+						int oldRow = rowStart - indexVeriticle; // Go Up
+						int oldCol = colStart + indexHorizontal; // Go Right
+
+						image.setPixel(newRow, newCol, image.getPixel(oldRow, oldCol));
+					}
+				}
+			}
+		}
+		image.display(); // debugging
+	}
+
+	// Todo: rough idea
+	int computeSignalWidth() {
+		int leftCornerRow = image.MAX_HEIGHT - 1;
+		int widthCount = 0;
+		for (int indexColumn = 0; indexColumn < image.MAX_WIDTH; indexColumn++) { // Keep
+																					// going
+																					// right
+			if (image.getPixel(leftCornerRow, indexColumn)) {
+				widthCount++;
+			}
+		}
+		return widthCount;
+	}
+
+	// Todo: rough idea
+	int computeSignalHeight() {
+		int leftCornerCol = 0;
+		int heightCount = 0;
+		for (int indexRow = 0; indexRow < image.MAX_HEIGHT; indexRow++) { // Keep
+																			// going
+																			// up
+			if (image.getPixel(indexRow, leftCornerCol)) {
+				heightCount++;
+			}
+		}
+		return heightCount;
+	}
+
+	private char readCharFromCol(int col) {
+		return 'a';
+	}
+
+	private boolean WriteCharToCol(int col, int code) {
+		return true;
+	}
 
 }

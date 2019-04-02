@@ -202,7 +202,7 @@ class BarcodeImage implements Cloneable {
 class DataMatrix implements BarcodeIO {
     public static final char BLACK_CHAR = '*';
     public static final char WHITE_CHAR = ' ';
-    private static final String defText = "undefined";
+
 
     private BarcodeImage image;
     private int actualWidth;
@@ -211,7 +211,7 @@ class DataMatrix implements BarcodeIO {
 
     public DataMatrix() {
         image = new BarcodeImage();
-        text = defText;
+        text = "";
         actualWidth = 0;
         actualHeight = 0;
 
@@ -253,8 +253,10 @@ class DataMatrix implements BarcodeIO {
 
     @Override
     public boolean scan(BarcodeImage imageIn) {
+        // try/catch not needed since clone doesn't throw
         this.image = imageIn.clone();
-        cleanImage(); // Adjusting to the left bottom
+
+        cleanImage(); // push to the bottom-left
         actualHeight = computeSignalHeight();
         actualWidth = computeSignalWidth();
 
@@ -388,18 +390,35 @@ class DataMatrix implements BarcodeIO {
         int height = BarcodeImage.MAX_HEIGHT - 2;
 
         byte b1 = (byte) ascii;
-        String s1 = String.format("%8s", Integer.toBinaryString(b1 & 0xFF)).replace(' ', '0');
+        String s1 = String.format("%8s", Integer.toBinaryString(b1 & 0xFF))
+                .replace(' ', '0');
         for (int i = 0; i < s1.length(); i++) {
+            int row = height - (s1.length() - 1 - i);
 
             if (s1.charAt(i) == '1') {
-                image.setPixel(height - (s1.length() - 1 - i), col, true);
+                image.setPixel(row, col, true);
             } else {
-                image.setPixel(height - (s1.length() - 1 - i), col, false);
+                image.setPixel(row, col, false);
             }
         }
 
         return true;
 
     }
+
+    /**
+     * @return actualHeight of the DataMatrix
+     */
+    public int getActualHeight() {
+        return actualHeight;
+    }
+
+    /**
+     * @return actualWidth of the DataMatrix
+     */
+    public int getActualWidth() {
+        return actualWidth;
+    }
+
 
 }

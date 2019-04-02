@@ -1,13 +1,13 @@
 package common;
 
 /**
- * todo: add desc
+ * Models a coordinate (for testing)
  *
- * @author todo
+ * @author M Robertson
  */
 public class Coordinate {
-    int x;
-    int y;
+    final int x;
+    final int y;
 
     public Coordinate(int x, int y) {
         this.x = x;

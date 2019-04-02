@@ -2,16 +2,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * todo: add desc
+ * testdata generator for BarcodeImage
  *
- * @author todo
+ * @author M Robertson
  */
-class BarcodeTestData {
-    List<String> lines;
-    List<String> padded;
-    BarcodeImage subject;
+class BarcodeImageTestData {
+    final List<String> lines;
+    final List<String> padded;
+    final BarcodeImage subject;
 
-    BarcodeTestData(List<String> lines) {
+    BarcodeImageTestData(List<String> lines) {
         // null lines -> default constructor
         if (lines == null) {
             this.lines = new ArrayList<>();

@@ -1,7 +1,7 @@
 /**
- * todo: add desc
+ * tests of DataMatrix
  *
- * @author todo
+ * @author M Robertson
  */
 public class DataMatrixTest {
 

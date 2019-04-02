@@ -8,6 +8,11 @@ import java.util.List;
 
 import static org.testng.Assert.assertEquals;
 
+/**
+ * tests of BarcodeImage
+ *
+ * @author M Robertson
+ */
 public class BarcodeImageTest {
     private static final List<String> IMAGE_NORMAL = new ArrayList<String>() {{
         add("* * * * * * * * * * * * * * * * * *");
@@ -30,15 +35,15 @@ public class BarcodeImageTest {
             }};
 
     private static final List<String> IMAGE_OVERSIZED_HEIGHT =
-            BarcodeTestData.overpopulated();
+            BarcodeImageTestData.overpopulated();
 
     @DataProvider(name = "images")
     public Object[][] images() {
         return new Object[][]{
-                {"empty", new BarcodeTestData(null)},
-                {"populated", new BarcodeTestData(IMAGE_NORMAL)},
-                {"too wide", new BarcodeTestData(IMAGE_OVERSIZED_WIDTH)},
-                {"too tall", new BarcodeTestData(IMAGE_OVERSIZED_HEIGHT)}
+                {"empty", new BarcodeImageTestData(null)},
+                {"populated", new BarcodeImageTestData(IMAGE_NORMAL)},
+                {"too wide", new BarcodeImageTestData(IMAGE_OVERSIZED_WIDTH)},
+                {"too tall", new BarcodeImageTestData(IMAGE_OVERSIZED_HEIGHT)}
         };
     }
 
@@ -75,7 +80,7 @@ public class BarcodeImageTest {
     }
 
     @Test(dataProvider = "images")
-    public void cloneTest(String name, BarcodeTestData data) {
+    public void cloneTest(String name, BarcodeImageTestData data) {
         String expect = ConsoleCapture.out.retrieve(data.subject::display);
         BarcodeImage clone = data.subject.clone();
         String actual = ConsoleCapture.out.retrieve(clone::display);
@@ -83,7 +88,7 @@ public class BarcodeImageTest {
     }
 
     @Test(dataProvider = "images")
-    public void displayTest(String name, BarcodeTestData data) {
+    public void displayTest(String name, BarcodeImageTestData data) {
         String expect = String.join("\n", data.padded) + "\n";
         String actual = ConsoleCapture.out.retrieve(data.subject::display);
         assertEquals(actual, expect);
@@ -91,7 +96,7 @@ public class BarcodeImageTest {
     }
 
     @Test(dataProvider = "images+coordinates")
-    public void getPixelTest(String iName, BarcodeTestData data,
+    public void getPixelTest(String iName, BarcodeImageTestData data,
                              String cName, int x, int y) {
         boolean actual = data.subject.getPixel(x, y);
         char got;
@@ -106,7 +111,7 @@ public class BarcodeImageTest {
     }
 
     @Test(dataProvider = "images+coordinates+setcases")
-    public void setPixelTests(String iName, BarcodeTestData data,
+    public void setPixelTests(String iName, BarcodeImageTestData data,
                               String cName, int x, int y,
                               boolean setcase) {
         BarcodeImage subject = data.subject;

@@ -13,7 +13,7 @@ import java.util.Map;
 public class Examples {
     /// Map declaration (inline)
     // @formatter:off
-    Map<String, String> map = new LinkedHashMap<String, String>() {{
+    final Map<String, String> map = new LinkedHashMap<String, String>() {{
        put("first"          , "primary details"                    );
        put("second"         , "secondary details"                  );
        put("subsequent ..." , "subsequent details continue on ..." );
@@ -21,7 +21,7 @@ public class Examples {
     // @formatter:on
 
     /// List declaration (inline)
-    List<String> list = new ArrayList<String>() {{
+    final List<String> list = new ArrayList<String>() {{
         add("first");
         add("second");
         add("continues on ...");

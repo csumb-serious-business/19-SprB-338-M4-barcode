@@ -5,7 +5,6 @@ Assignment: M4 Optical Barcode Readers
 Date:       4/2/2019
 \* ------------------------------------------------------------------------- */
 
-import java.util.*;
 
 interface BarcodeIO {
     public boolean scan(BarcodeImage bc);
@@ -93,7 +92,7 @@ class BarcodeImage implements Cloneable {
     public static final int MAX_HEIGHT = 30;
     public static final int MAX_WIDTH = 65;
 
-    private boolean[][] imageData;
+    private final boolean[][] imageData;
 
     public BarcodeImage(String[] strData) {
         this();
@@ -301,20 +300,20 @@ class DataMatrix implements BarcodeIO {
         // optimiztion
         int rowStart = 0, colStart = 0;
 
+        //todo labels are disallowed, call a method instead
         outter:
         for (int indexHorizontal = BarcodeImage.MAX_HEIGHT - 1; indexHorizontal >= 0; indexHorizontal--) {
 
             for (int indexVertical = 0; indexVertical < BarcodeImage.MAX_WIDTH; indexVertical++) {
-                if (image.getPixel(indexHorizontal, indexVertical)) // Pixel
-                // detected
-                {
-                    if (rowStart == 0 && colStart == 0)// Check if the we are at
-                    // the start
-                    {
+                // pixel detected
+                if (image.getPixel(indexHorizontal, indexVertical)) {
+                    // at the start?
+                    //todo lint says always true
+                    if (rowStart == 0 && colStart == 0) {
                         // Hold the value of where the first pixel is detected
                         rowStart = indexHorizontal;
                         colStart = indexVertical;
-                        break outter;// If detected break out of the outter loop no need to iterate
+                        break outter;// If detected break out of the outer loop no need to iterate
                     }
                 }
             }
@@ -322,8 +321,8 @@ class DataMatrix implements BarcodeIO {
 
         for (int indexVeriticle = 0; indexVeriticle < BarcodeImage.MAX_HEIGHT; indexVeriticle++) {
             for (int indexHorizontal = 0; indexHorizontal < BarcodeImage.MAX_WIDTH; indexHorizontal++) {
-                if (rowStart - indexVeriticle >= 0) // Can not be a negative
-                {
+                // must be non-negative
+                if (rowStart - indexVeriticle >= 0) {
                     // must be less than width
                     if (colStart + indexHorizontal < BarcodeImage.MAX_WIDTH) {
                         // Map the old to new position, start at top
@@ -385,6 +384,7 @@ class DataMatrix implements BarcodeIO {
     }
 
     private boolean WriteCharToCol(int col, int ascii) {
+        // todo guardrail -> return false
 
         // Exclude bottom and top
         int height = BarcodeImage.MAX_HEIGHT - 2;

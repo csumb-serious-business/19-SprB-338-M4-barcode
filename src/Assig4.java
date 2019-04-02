@@ -123,7 +123,7 @@ class BarcodeImage implements Cloneable {
 
     }
 
-	public BarcodeImage(){
+    public BarcodeImage(){
     	for(int i = 0; i < MAX_WIDTH; i++)
     	{
     	    for(int j = 0; j < MAX_HEIGHT; j++)
@@ -154,15 +154,6 @@ class BarcodeImage implements Cloneable {
         return imageData[row][col];
     }
     
-    public void displayToConsole() {
-    	for(boolean[]arr: imageData) {
-    		for(boolean val: arr) {
-    			if(val) System.out.print('*');
-    			else System.out.print(' ');
-    		}
-    		System.out.print('\n');
-    	}
-    }
 
     @Override
     public BarcodeImage clone() throws CloneNotSupportedException {

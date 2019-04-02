@@ -131,7 +131,9 @@ class BarcodeImage implements Cloneable {
     }
 
     boolean setPixel(int row, int col, boolean value) {
-        // Todo Validation
+        if (col < 0 || col >= MAX_WIDTH || row < 0 || row >= MAX_HEIGHT) {
+            return false;
+        }
         imageData[row][col] = value;
         return true;
 
@@ -166,11 +168,9 @@ class BarcodeImage implements Cloneable {
 
     public void display() {
         int iRow, iCol;
-        System.out.println();
         for (iRow = 0; iRow < MAX_HEIGHT; iRow++) {
-            System.out.print("|" + iRow + "|");
             for (iCol = 0; iCol < MAX_WIDTH; iCol++) {
-                if (getPixel(iRow, iCol) == true) {
+                if (getPixel(iRow, iCol)) {
                     System.out.print("*");
                 } else {
                     System.out.print(" ");

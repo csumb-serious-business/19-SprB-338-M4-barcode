@@ -252,12 +252,12 @@ class DataMatrix implements BarcodeIO {
     }
 
     @Override
-	public boolean scan(BarcodeImage imageIN) {
-		try {
-			this.image = (BarcodeImage) imageIN.clone();
-			cleanImage(); // Adjusting to the left bottom
-			actualHeight = computeSignalHeight();
-			actualWidth = computeSignalWidth();
+    public boolean scan(BarcodeImage imageIN) {
+    	try {
+    		this.image = (BarcodeImage) imageIN.clone();
+    		cleanImage(); // Adjusting to the left bottom
+    		actualHeight = computeSignalHeight();
+    		actualWidth = computeSignalWidth();
 		} catch (CloneNotSupportedException e) {
 
 		}

@@ -75,6 +75,14 @@ public class BarcodeImageTest {
     }
 
     @Test(dataProvider = "images")
+    public void cloneTest(String name, BarcodeTestData data) {
+        String expect = ConsoleCapture.out.retrieve(data.subject::display);
+        BarcodeImage clone = data.subject.clone();
+        String actual = ConsoleCapture.out.retrieve(clone::display);
+        assertEquals(actual, expect);
+    }
+
+    @Test(dataProvider = "images")
     public void displayTest(String name, BarcodeTestData data) {
         String expect = String.join("\n", data.padded) + "\n";
         String actual = ConsoleCapture.out.retrieve(data.subject::display);

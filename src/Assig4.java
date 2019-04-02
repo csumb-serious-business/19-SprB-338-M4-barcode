@@ -7,7 +7,8 @@ Date:       4/2/2019
 
 import java.util.*;
 
-interface BarcodeIO {
+interface BarcodeIO 
+{
     public boolean scan(BarcodeImage bc);
 
     public boolean readText(String text);
@@ -65,12 +66,8 @@ public class Assig4 {
 
         };
 
-        System.out.println("DEBUG::Start of Run");
-        BarcodeImage bc = new BarcodeImage(IMAGE_1);
-        System.out.println("DEBUG::Before just on the Intake");
-        bc.display();
 
-        System.out.println("DEBUG::After Scanning and Cleaing");
+        BarcodeImage bc = new BarcodeImage(IMAGE_1);
         DataMatrix dm = new DataMatrix(bc);
 
         // First secret message
@@ -93,12 +90,14 @@ public class Assig4 {
     }
 }
 
-class BarcodeImage implements Cloneable {
+class BarcodeImage implements Cloneable 
+{
     public static final int MAX_HEIGHT = 30;
     public static final int MAX_WIDTH = 65;
     private boolean[][] imageData = new boolean[MAX_HEIGHT][MAX_WIDTH];
 
-    public BarcodeImage(String[] strIn) {
+    public BarcodeImage(String[] strIn) 
+    {
         this();
 
         if (strIn.length > MAX_HEIGHT) {
@@ -169,7 +168,7 @@ class BarcodeImage implements Cloneable {
 
 
     @Override
-    public BarcodeImage clone() {
+    public BarcodeImage clone() throws CloneNotSupportedException  {
         BarcodeImage returnBC = null;
         try {
             returnBC = (BarcodeImage) super.clone();
@@ -203,7 +202,8 @@ class BarcodeImage implements Cloneable {
 
 }
 
-class DataMatrix implements BarcodeIO {
+class DataMatrix implements BarcodeIO
+{
 	// DATA
 	private BarcodeImage image;
 	public static final char BLACK_CHAR = '*';
@@ -229,7 +229,8 @@ class DataMatrix implements BarcodeIO {
 		this();
 		readText(text);
 	}
-
+	
+	@Override
 	public boolean translateImageToText() {
 		String message = "";
 		int start = 1; // Ingore the skeleton
@@ -241,16 +242,16 @@ class DataMatrix implements BarcodeIO {
 
 		return true;
 	}
-
+	@Override
 	public void displayTextToConsole() {
-		System.out.println("    " + this.text);
+		System.out.println(this.text);
 
 	}
-
+	@Override
 	public void displayImageToConsole() {
 		image.display();
 	}
-
+	@Override
 	public boolean scan(BarcodeImage imageIN) {
 		try {
 			this.image = (BarcodeImage) imageIN.clone();
@@ -262,13 +263,13 @@ class DataMatrix implements BarcodeIO {
 		}
 		return true;
 	}
-
+	@Override
 	public boolean readText(String inputString) 
 	{
 		this.text = inputString ;
 		return true;
 	}
-
+	@Override
 	public boolean generateImageFromText() {
 		  image = new BarcodeImage();
 		  int col = 0;	  
@@ -348,7 +349,6 @@ class DataMatrix implements BarcodeIO {
 	
 	}
 
-	// Todo: rough idea
 	int computeSignalWidth() {
 		int leftCornerRow = image.MAX_HEIGHT - 1;
 		int widthCount = 0;
@@ -362,7 +362,6 @@ class DataMatrix implements BarcodeIO {
 		return widthCount;
 	}
 
-	// Todo: rough idea
 	int computeSignalHeight() {
 		int leftCornerCol = 0;
 		int heightCount = 0;

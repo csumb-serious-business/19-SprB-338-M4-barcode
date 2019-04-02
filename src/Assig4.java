@@ -169,7 +169,7 @@ class BarcodeImage implements Cloneable {
     	BarcodeImage returnBC = null;
     	try {
     		returnBC = (BarcodeImage) super.clone();
-
+    		
     		// Deep Copy
     		for (int iRow = 0; iRow < MAX_HEIGHT; iRow++) {
     			for (int iCol = 0; iCol < MAX_WIDTH; iCol++) {
@@ -180,7 +180,7 @@ class BarcodeImage implements Cloneable {
     	} catch (CloneNotSupportedException ex) {/* do nothing */}
     	// return the clone
     	return returnBC;
-
+    	
     }
 
 

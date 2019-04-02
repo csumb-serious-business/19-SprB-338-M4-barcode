@@ -1,205 +1,195 @@
+
 /* ------------------------------------------------------------------------- *\
 Authors:    C Ahangama, J Asato, M Robertson, R Talmage
 Class:      CST338
 Assignment: M4 Optical Barcode Readers
 Date:       4/2/2019
 \* ------------------------------------------------------------------------- */
-
 import java.util.*;
 
 interface BarcodeIO {
-    public boolean scan(BarcodeImage bc);
+	public boolean scan(BarcodeImage bc);
 
-    public boolean readText(String text);
+	public boolean readText(String text);
 
-    public boolean generateImageFromText();
+	public boolean generateImageFromText();
 
-    public boolean translateImageToText();
+	public boolean translateImageToText();
 
-    public void displayTextToConsole();
+	public void displayTextToConsole();
 
-    public void displayImageToConsole();
+	public void displayImageToConsole();
 
 }
 
 public class Assig4 {
-    public static void main(String[] args) {
-        final String[] IMAGE_1 = {
-                "                                               ",
-                "                                               ",
-                "                                               ",
-                "     * * * * * * * * * * * * * * * * * * * * * ",
-                "     *                                       * ",
-                "     ****** **** ****** ******* ** *** *****   ",
-                "     *     *    ****************************** ",
-                "     * **    * *        **  *    * * *   *     ",
-                "     *   *    *  *****    *   * *   *  **  *** ",
-                "     *  **     * *** **   **  *    **  ***  *  ",
-                "     ***  * **   **  *   ****    *  *  ** * ** ",
-                "     *****  ***  *  * *   ** ** **  *   * *    ",
-                "     ***************************************** ",
-                "                                               ",
-                "                                               ",
-                "                                               "
+	public static void main(String[] args) {
+		  String[] sImageIn =
+		      {
+		         "                                               ",
+		         "                                               ",
+		         "                                               ",
+		         "     * * * * * * * * * * * * * * * * * * * * * ",
+		         "     *                                       * ",
+		         "     ****** **** ****** ******* ** *** *****   ",
+		         "     *     *    ****************************** ",
+		         "     * **    * *        **  *    * * *   *     ",
+		         "     *   *    *  *****    *   * *   *  **  *** ",
+		         "     *  **     * *** **   **  *    **  ***  *  ",
+		         "     ***  * **   **  *   ****    *  *  ** * ** ",
+		         "     *****  ***  *  * *   ** ** **  *   * *    ",
+		         "     ***************************************** ",  
+		         "                                               ",
+		         "                                               ",
+		         "                                               "
 
-        };
+		      };      
+		            
+		         
+		      
+		      String[] sImageIn_2 =
+		      {
+		            "                                          ",
+		            "                                          ",
+		            "* * * * * * * * * * * * * * * * * * *     ",
+		            "*                                    *    ",
+		            "**** *** **   ***** ****   *********      ",
+		            "* ************ ************ **********    ",
+		            "** *      *    *  * * *         * *       ",
+		            "***   *  *           * **    *      **    ",
+		            "* ** * *  *   * * * **  *   ***   ***     ",
+		            "* *           **    *****  *   **   **    ",
+		            "****  *  * *  * **  ** *   ** *  * *      ",
+		            "**************************************    ",
+		            "                                          ",
+		            "                                          ",
+		            "                                          ",
+		            "                                          "
 
+		      };
+		System.out.println("DEBUG::Start of Run img1");
+		BarcodeImage bc = new BarcodeImage(sImageIn);
+		DataMatrix dm = new DataMatrix(bc);
 
-        final String[] IMAGE_2 = {
-                "                                          ",
-                "                                          ",
-                "* * * * * * * * * * * * * * * * * * *     ",
-                "*                                    *    ",
-                "**** *** **   ***** ****   *********      ",
-                "* ************ ************ **********    ",
-                "** *      *    *  * * *         * *       ",
-                "***   *  *           * **    *      **    ",
-                "* ** * *  *   * * * **  *   ***   ***     ",
-                "* *           **    *****  *   **   **    ",
-                "****  *  * *  * **  ** *   ** *  * *      ",
-                "**************************************    ",
-                "                                          ",
-                "                                          ",
-                "                                          ",
-                "                                          "
+		// First secret message
+		dm.translateImageToText();
+		dm.displayTextToConsole();
+		dm.displayImageToConsole();
+		System.out.println("DEBUG::End of Run");
+		
+		// second secret message
+		bc = new BarcodeImage(sImageIn_2);
+		dm.scan(bc);
+		System.out.println("DEBUG::Start of Run img2");
+		dm.translateImageToText();
+		dm.displayTextToConsole();
+		dm.displayImageToConsole();
+		System.out.println("DEBUG::End of Run");
 
-        };
-
-        System.out.println("DEBUG::Start of Run");
-        BarcodeImage bc = new BarcodeImage(IMAGE_1);
-        System.out.println("DEBUG::Before just on the Intake");
-        bc.display();
-
-        System.out.println("DEBUG::After Scanning and Cleaing");
-        DataMatrix dm = new DataMatrix(bc);
-
-        // First secret message
-        dm.translateImageToText();
-        dm.displayTextToConsole();
-        dm.displayImageToConsole();
-
-        // second secret message
-        bc = new BarcodeImage(IMAGE_2);
-        dm.scan(bc);
-        dm.translateImageToText();
-        dm.displayTextToConsole();
-        dm.displayImageToConsole();
-
-        // create your own message
-        dm.readText("What a great resume builder this is!");
-        dm.generateImageFromText();
-        dm.displayTextToConsole();
-        dm.displayImageToConsole();
-    }
+		System.out.println("DEBUG::Start of Run txt");
+		// create your own message
+		dm.readText("You did it!  Great work.  Celebrate.");
+		dm.generateImageFromText();
+		dm.displayTextToConsole();
+		dm.displayImageToConsole();
+		System.out.println("DEBUG::End of Run");
+	}
 }
 
 class BarcodeImage implements Cloneable {
-    public static final int MAX_HEIGHT = 30;
-    public static final int MAX_WIDTH = 65;
-    private boolean[][] imageData = new boolean[MAX_HEIGHT][MAX_WIDTH];
+	public static final int MAX_HEIGHT = 30;
+	public static final int MAX_WIDTH = 65;
+	private boolean[][] imageData = new boolean[MAX_HEIGHT][MAX_WIDTH];
 
-    public BarcodeImage(String[] strIn) {
-        this();
+	public BarcodeImage(String[] strIn) {
+		this();
 
-        if (strIn.length > MAX_HEIGHT) {
-            return;
-        }
-        // for each row in strIn
-        for (int iRow = 0; iRow < strIn.length; iRow++) {
-            int numOfColums = strIn[0].length();
+		// Todo Check Size
+		for (int iRow = 0; iRow < strIn.length; iRow++) // For each item in the
+														// array
+		{
+			int numOfColums = strIn[0].length();
 
-            // for each column in columns
-            for (int iColumn = 0; iColumn < numOfColums; iColumn++) {
-                char[] raw = strIn[iRow].toCharArray();
+			for (int iColumn = 0; iColumn < numOfColums; iColumn++) // How many
+																	// in each
+																	// item in
+																	// the array
+																	// (row
+																	// items)
+			{
+				char[] raw = strIn[iRow].toCharArray();
+				int rowIndex = MAX_HEIGHT - (strIn.length - iRow); // This way
+																	// we cut
+																	// down on
+																	// the extra
+																	// spacing
+				if (raw[iColumn] == '*') {
+					setPixel(rowIndex, iColumn, true);
+				} else {
+					setPixel(rowIndex, iColumn, false);
+				}
+			}
+		}
 
-                // cut down on the extra spacing
-                int rowIndex = MAX_HEIGHT - (strIn.length - iRow);
+	}
 
-                if (raw[iColumn] == '*') {
-                    setPixel(rowIndex, iColumn, true);
-                } else {
-                    setPixel(rowIndex, iColumn, false);
-                }
-            }
-        }
-
-    }
-
-    public BarcodeImage() {
+	public BarcodeImage() {
 		for (boolean[] arr2 : imageData) {
 			for (boolean val : arr2) {
 				val = false;
 			}
 		}
-    }
+	}
 
-    private boolean checkSize(String[] data) {
-        if (data.length > MAX_HEIGHT) {
-            return false;
-        }
-        for (String s : data) {
-            if (s.length() > MAX_WIDTH) return false;
-        }
-        return true;
-    }
+	boolean setPixel(int row, int col, boolean value) {
+		// Todo Validation
+		
+		imageData[row][col] = value;
+		return true;
 
+	}
 
-    boolean setPixel(int row, int col, boolean value) {
-        if (isValidCoordinate(row, col)) {
-            imageData[row][col] = value;
-            return true;
-        }
-        return false;
-    }
+	boolean getPixel(int row, int col) {
+		return imageData[row][col];
+	}
 
-    boolean getPixel(int row, int col) {
-        if (isValidCoordinate(row, col)) {
-            return imageData[row][col];
-        }
+	@Override
+	public BarcodeImage clone() throws CloneNotSupportedException {
+		BarcodeImage returnBC = null;
+		try {
+			returnBC = (BarcodeImage) super.clone();
 
-        // bad practice, false indicates both error & false states
-        // leave since it is per spec
-        return false;
-    }
+			// Deep Copy
+			for (int iRow = 0; iRow < MAX_HEIGHT; iRow++) {
+				for (int iCol = 0; iCol < MAX_WIDTH; iCol++) {
+					returnBC.imageData[iRow][iCol] = this.getPixel(iRow, iCol);
+				}
+			}
 
-    boolean isValidCoordinate(int row, int column) {
-        return !(column < 0 || column >= MAX_WIDTH ||
-                row < 0 || row >= MAX_HEIGHT);
-    }
+		} catch (CloneNotSupportedException ex) {
+			// Do Nothing Explict dont throw
 
+		}
+		// return the clone
+		return returnBC;
 
-    @Override
-    public BarcodeImage clone() {
-        BarcodeImage returnBC = null;
-        try {
-            returnBC = (BarcodeImage) super.clone();
+	}
 
-            // Deep Copy
-            for (int iRow = 0; iRow < MAX_HEIGHT; iRow++) {
-                for (int iCol = 0; iCol < MAX_WIDTH; iCol++) {
-                    returnBC.imageData[iRow][iCol] = getPixel(iRow, iCol);
-                }
-            }
-
-        } catch (CloneNotSupportedException ex) {/* do nothing */}
-
-        return returnBC;
-    }
-
-
-    public void display() {
-        int iRow, iCol;
-        for (iRow = 0; iRow < MAX_HEIGHT; iRow++) {
-            for (iCol = 0; iCol < MAX_WIDTH; iCol++) {
-                if (getPixel(iRow, iCol)) {
-                    System.out.print("*");
-                } else {
-                    System.out.print(" ");
-                }
-            }
-            System.out.println();
-        }
-    }
+	public void display() {
+		int iRow, iCol;
+		System.out.println();
+		for (iRow = 0; iRow < MAX_HEIGHT; iRow++) {
+			System.out.print("|" + iRow + "|");
+			for (iCol = 0; iCol < MAX_WIDTH; iCol++) {
+				if (getPixel(iRow, iCol) == true) {
+					System.out.print("*");
+				} else {
+					System.out.print(" ");
+				}
+			}
+			System.out.println();
+		}
+	}
 
 }
 

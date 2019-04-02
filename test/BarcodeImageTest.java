@@ -1,187 +1,116 @@
 import common.ConsoleCapture;
-import org.junit.Ignore;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Nested;
-import org.junit.jupiter.api.Test;
+import common.TestNGMerge;
+import org.testng.annotations.DataProvider;
+import org.testng.annotations.Test;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.testng.Assert.assertEquals;
 
-class Helper {
-    static String repeatedString(int count, String toRepeat) {
-        return new String(new char[count]).replace("\0", toRepeat);
-    }
-
-    static List<String> pad(List<String> list) {
-        // pad the right
-        int rightPadLen = list.size() > 0 ?
-                BarcodeImage.MAX_WIDTH - list.get(0).length() :
-                BarcodeImage.MAX_WIDTH;
-
-        if (rightPadLen > 0) {
-            String rightPad = repeatedString(rightPadLen, " ");
-            list.replaceAll((line) -> line += rightPad);
-        }
-        if (rightPadLen < 0) {
-            list.replaceAll((line) -> line.substring(0, BarcodeImage.MAX_WIDTH));
-        }
-
-
-        // pad the top
-        while (list.size() < BarcodeImage.MAX_HEIGHT) {
-            list.add(0,
-                    "                                                                 ");
-        }
-
-
-        return list;
-    }
-
-    static List<String> overpopulate(List<String> list) {
-        boolean isEven = false;
-
-        for (int i = 0; i < BarcodeImage.MAX_HEIGHT; i++) {
-            String str = repeatedString(i, "*") + repeatedString((BarcodeImage.MAX_WIDTH - 1) - i, " ");
-            if (isEven) {
-                list.add(str + "*");
-                isEven = false;
-            } else {
-                list.add(str + " ");
-                isEven = true;
-            }
-        }
-        list.add(0, "* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *");
-        list.add("*****************************************************************");
-        return list;
-    }
-
-}
-
-/**
- * tests for BarcodeImage
- *
- * @author M Robertson
- */
 public class BarcodeImageTest {
-    static void displayTest(List<String> lines, BarcodeImage subject) {
-        String expect = String.join("\n", Helper.pad(lines)) + "\n";
-        assertEquals(expect, ConsoleCapture.out.retrieve((subject::display)));
+    private static final List<String> IMAGE_NORMAL = new ArrayList<String>() {{
+        add("* * * * * * * * * * * * * * * * * *");
+        add("*                                 *");
+        add("***** ** * **** ****** ** **** **  ");
+        add("* **************      *************");
+        add("**  *  *        *  *   *        *  ");
+        add("* **  *     **    * *   * ****   **");
+        add("**         ****   * ** ** ***   ** ");
+        add("*   *  *   ***  *       *  ***   **");
+        add("*  ** ** * ***  ***  *  *  *** *   ");
+        add("***********************************");
+    }};
+
+    private static final List<String> IMAGE_OVERSIZED_WIDTH =
+            new ArrayList<String>() {{
+                add("* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * ");
+                add("*                                 *                               ");
+                add("******************************************************************");
+            }};
+
+    private static final List<String> IMAGE_OVERSIZED_HEIGHT =
+            BarcodeTestData.overpopulated();
+
+    @DataProvider(name = "images")
+    public Object[][] images() {
+        return new Object[][]{
+                {"empty", new BarcodeTestData(null)},
+                {"populated", new BarcodeTestData(IMAGE_NORMAL)},
+                {"too wide", new BarcodeTestData(IMAGE_OVERSIZED_WIDTH)},
+                {"too tall", new BarcodeTestData(IMAGE_OVERSIZED_HEIGHT)}
+        };
     }
 
-    static void getPixelTest(List<String> lines, BarcodeImage subject) {
-        // too low x
-        boolean actual = subject.getPixel(-1, 0);
+    @DataProvider(name = "coordinates")
+    public Object[][] coordinates() {
+        return new Object[][]{
+                {"too low X", -1, 0},
+                {"min X", 0, 0},
+                {"max X", BarcodeImage.MAX_WIDTH, 0},
+                {"too high X", BarcodeImage.MAX_WIDTH + 1, 0},
+                {"too low Y", 0, -1},
+                {"min Y", 0, 0},
+                {"max Y", 0, BarcodeImage.MAX_HEIGHT},
+                {"too high Y", 0, BarcodeImage.MAX_HEIGHT + 1}
+        };
+    }
 
-        // min x
-        actual = subject.getPixel(0, 0);
+    @DataProvider(name = "set-cases")
+    public Object[][] setcases() {
+        return new Object[][]{
+                {true},
+                {false}
+        };
+    }
 
+    @DataProvider(name = "images+coordinates")
+    public Object[][] images_coordinates() {
+        return TestNGMerge.merge(images(), coordinates());
+    }
 
-        // max x
-        actual = subject.getPixel(BarcodeImage.MAX_WIDTH, 0);
+    @DataProvider(name = "images+coordinates+setcases")
+    public Object[][] images_coordinates_setcases() {
+        return TestNGMerge.merge(images_coordinates(), setcases());
+    }
 
-        // too high x
-        actual = subject.getPixel(BarcodeImage.MAX_WIDTH + 1, 0);
-
-        // too low y
-        actual = subject.getPixel(0, -1);
-
-        // min y
-        actual = subject.getPixel(0, 0);
-
-        // max y
-        actual = subject.getPixel(0, BarcodeImage.MAX_HEIGHT);
-
-        // too high y
-        actual = subject.getPixel(0, BarcodeImage.MAX_HEIGHT + 1);
-
+    @Test(dataProvider = "images")
+    public void displayTest(String name, BarcodeTestData data) {
+        String expect = String.join("\n", data.padded) + "\n";
+        String actual = ConsoleCapture.out.retrieve(data.subject::display);
+        assertEquals(actual, expect);
 
     }
 
-
-    @Nested
-    @DisplayName("statics")
-    class Statics {
-        @Test
-        void maxHeightWidthTest() {
-            assertEquals(30, BarcodeImage.MAX_HEIGHT);
-            assertEquals(65, BarcodeImage.MAX_WIDTH);
+    @Test(dataProvider = "images+coordinates")
+    public void getPixelTest(String iName, BarcodeTestData data,
+                             String cName, int x, int y) {
+        boolean actual = data.subject.getPixel(x, y);
+        char got;
+        try {
+            // subject has
+            got = data.lines.get(x + 1).charAt(y + 1);
+        } catch (IndexOutOfBoundsException ex) {
+            got = 'x';
         }
-
+        boolean expect = got == '*';
+        assertEquals(actual, expect);
     }
 
-    @Ignore("populated first to check output dimensions")
-    @Nested
-    @DisplayName("empty")
-    class Empty {
-        List<String> lines = new ArrayList<>();
-        BarcodeImage subject = new BarcodeImage();
+    @Test(dataProvider = "images+coordinates+setcases")
+    public void setPixelTests(String iName, BarcodeTestData data,
+                              String cName, int x, int y,
+                              boolean setcase) {
+        BarcodeImage subject = data.subject;
+        // set succeeded?
+        boolean valid = subject.isValidCoordinate(x, y);
+        boolean previous = valid && subject.getPixel(x, y);
+        boolean writeStatus = subject.setPixel(x, y, setcase);
+        assertEquals(valid, writeStatus);
 
-
-        @Test
-        void imageDataTest() {
-            displayTest(lines, subject);
-        }
+        // write value correct?
+        boolean get = subject.getPixel(x, y);
+        boolean expect = valid ? setcase : previous;
+        assertEquals(expect, get);
     }
-
-    @Nested
-    @DisplayName("populated")
-    class Populated {
-
-        List<String> lines = new ArrayList<String>() {{
-            add("* * * * * * * * * * * * * * * * * *");
-            add("*                                 *");
-            add("***** ** * **** ****** ** **** **  ");
-            add("* **************      *************");
-            add("**  *  *        *  *   *        *  ");
-            add("* **  *     **    * *   * ****   **");
-            add("**         ****   * ** ** ***   ** ");
-            add("*   *  *   ***  *       *  ***   **");
-            add("*  ** ** * ***  ***  *  *  *** *   ");
-            add("***********************************");
-        }};
-
-
-        BarcodeImage subject = new BarcodeImage(lines.toArray(new String[0]));
-
-        @Test
-        void imageDataTest() {
-            displayTest(lines, subject);
-        }
-    }
-
-    @Nested
-    @DisplayName("oversized width")
-    class OversizedWidth {
-        List<String> lines = new ArrayList<String>() {{
-            add("* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * ");
-            add("*                                 *                               ");
-            add("******************************************************************");
-        }};
-
-        BarcodeImage subject = new BarcodeImage(lines.toArray(new String[0]));
-
-        @Test
-        void oversizedWidthTest() {
-            displayTest(lines, subject);
-        }
-    }
-
-    @Nested
-    @DisplayName("oversized height")
-    class OversizedHeight {
-        List<String> lines = new ArrayList<>();
-        List<String> overpopulated = Helper.overpopulate(lines);
-        BarcodeImage subject = new BarcodeImage(overpopulated.toArray(new String[0]));
-
-        @Test
-        void oversizedHeightTest() {
-            //overpopulated will be rejected, so we expect an empty in actual
-            List<String> expect = new ArrayList<>();
-            displayTest(expect, subject);
-        }
-
-    }
-
 }

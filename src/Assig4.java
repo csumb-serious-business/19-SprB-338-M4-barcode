@@ -161,7 +161,7 @@ class BarcodeImage implements Cloneable
         return false;
     }
 
-    boolean isValidCoordinate(int row, int column) {
+    public boolean isValidCoordinate(int row, int column) {
         return !(column < 0 || column >= MAX_WIDTH ||
                 row < 0 || row >= MAX_HEIGHT);
     }

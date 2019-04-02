@@ -122,34 +122,36 @@ class BarcodeImage implements Cloneable {
 
     }
 
-    public BarcodeImage(){
-    	for(int i = 0; i < MAX_WIDTH; i++)
-    	{
-    	    for(int j = 0; j < MAX_HEIGHT; j++)
-    	    {
-    	    	setPixel(j, i, false);
-    	    }
-    	}
+    public BarcodeImage() {
+        for (int i = 0; i < MAX_WIDTH; i++) {
+            for (int j = 0; j < MAX_HEIGHT; j++) {
+                setPixel(j, i, false);
+            }
+        }
     }
 
     private boolean checkSize(String[] data) {
-        if (data.length > MAX_HEIGHT || data == null) return false;
-        for(String s: data) {
-        	if(s.length() > MAX_WIDTH) return false;
+        if (data.length > MAX_HEIGHT) {
+            return false;
+        }
+        for (String s : data) {
+            if (s.length() > MAX_WIDTH) return false;
         }
         return true;
     }
 
 
     boolean setPixel(int row, int col, boolean value) {
-    	if(row > MAX_HEIGHT || col > MAX_WIDTH || row < 0 || col < 0) return false;
+        if (col < 0 || col >= MAX_WIDTH || row < 0 || row >= MAX_HEIGHT) {
+            return false;
+        }
         imageData[row][col] = value;
         return true;
 
     }
 
     boolean getPixel(int row, int col) {
-    	if(row > MAX_HEIGHT || col > MAX_WIDTH || row < 0 || col < 0) return false;
+        if (row > MAX_HEIGHT || col > MAX_WIDTH || row < 0 || col < 0) return false;
         return imageData[row][col];
     }
 
@@ -179,11 +181,9 @@ class BarcodeImage implements Cloneable {
 
     public void display() {
         int iRow, iCol;
-        System.out.println();
         for (iRow = 0; iRow < MAX_HEIGHT; iRow++) {
-            System.out.print("|" + iRow + "|");
             for (iCol = 0; iCol < MAX_WIDTH; iCol++) {
-                if (getPixel(iRow, iCol) == true) {
+                if (getPixel(iRow, iCol)) {
                     System.out.print("*");
                 } else {
                     System.out.print(" ");
@@ -287,18 +287,18 @@ class DataMatrix implements BarcodeIO {
             }
         }
 
-        for (int indexVeriticle = 0; indexVeriticle < BarcodeImage.MAX_HEIGHT; indexVeriticle++) {
+        for (int indexVertical = 0; indexVertical < BarcodeImage.MAX_HEIGHT; indexVertical++) {
             for (int indexHorizontal = 0; indexHorizontal < BarcodeImage.MAX_WIDTH; indexHorizontal++) {
                 // Can't be negative
-                if (rowStart - indexVeriticle >= 0) {
+                if (rowStart - indexVertical >= 0) {
 
                     // must be less than the width
                     if (colStart + indexHorizontal < BarcodeImage.MAX_WIDTH) {
                         // Mapping the old to new position, starting at the top
-                        int newRow = BarcodeImage.MAX_HEIGHT - indexVeriticle - 1;
+                        int newRow = BarcodeImage.MAX_HEIGHT - indexVertical - 1;
                         int newCol = indexHorizontal;
 
-                        int oldRow = rowStart - indexVeriticle; // Go Up
+                        int oldRow = rowStart - indexVertical; // Go Up
                         int oldCol = colStart + indexHorizontal; // Go Right
 
                         image.setPixel(newRow, newCol, image.getPixel(oldRow, oldCol));

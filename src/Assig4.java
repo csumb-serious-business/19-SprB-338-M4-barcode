@@ -24,7 +24,7 @@ interface BarcodeIO {
 
 public class Assig4 {
     public static void main(String[] args) {
-        String[] sImageIn = {
+        final String[] IMAGE_1 = {
                 "                                               ",
                 "                                               ",
                 "                                               ",
@@ -45,7 +45,7 @@ public class Assig4 {
         };
 
 
-        String[] sImageIn_2 = {
+        final String[] IMAGE_2 = {
                 "                                          ",
                 "                                          ",
                 "* * * * * * * * * * * * * * * * * * *     ",
@@ -64,8 +64,9 @@ public class Assig4 {
                 "                                          "
 
         };
+
         System.out.println("DEBUG::Start of Run");
-        BarcodeImage bc = new BarcodeImage(sImageIn);
+        BarcodeImage bc = new BarcodeImage(IMAGE_1);
         System.out.println("DEBUG::Before just on the Intake");
         bc.display();
 
@@ -78,7 +79,7 @@ public class Assig4 {
         dm.displayImageToConsole();
 
         // second secret message
-        bc = new BarcodeImage(sImageIn_2);
+        bc = new BarcodeImage(IMAGE_2);
         dm.scan(bc);
         dm.translateImageToText();
         dm.displayTextToConsole();
@@ -100,7 +101,9 @@ class BarcodeImage implements Cloneable {
     public BarcodeImage(String[] strIn) {
         this();
 
-        // Todo Check Size
+        if (strIn.length > MAX_HEIGHT) {
+            return;
+        }
         // for each row in strIn
         for (int iRow = 0; iRow < strIn.length; iRow++) {
             int numOfColums = strIn[0].length();
@@ -142,22 +145,31 @@ class BarcodeImage implements Cloneable {
 
 
     boolean setPixel(int row, int col, boolean value) {
-        if (col < 0 || col >= MAX_WIDTH || row < 0 || row >= MAX_HEIGHT) {
-            return false;
+        if (isValidCoordinate(row, col)) {
+            imageData[row][col] = value;
+            return true;
         }
-        imageData[row][col] = value;
-        return true;
-
+        return false;
     }
 
     boolean getPixel(int row, int col) {
-        if (row > MAX_HEIGHT || col > MAX_WIDTH || row < 0 || col < 0) return false;
-        return imageData[row][col];
+        if (isValidCoordinate(row, col)) {
+            return imageData[row][col];
+        }
+
+        // bad practice, false indicates both error & false states
+        // leave since it is per spec
+        return false;
+    }
+
+    boolean isValidCoordinate(int row, int column) {
+        return !(column < 0 || column >= MAX_WIDTH ||
+                row < 0 || row >= MAX_HEIGHT);
     }
 
 
     @Override
-    public BarcodeImage clone() throws CloneNotSupportedException {
+    public BarcodeImage clone() {
         BarcodeImage returnBC = null;
         try {
             returnBC = (BarcodeImage) super.clone();
@@ -165,19 +177,15 @@ class BarcodeImage implements Cloneable {
             // Deep Copy
             for (int iRow = 0; iRow < MAX_HEIGHT; iRow++) {
                 for (int iCol = 0; iCol < MAX_WIDTH; iCol++) {
-                    returnBC.imageData[iRow][iCol] = this.getPixel(iRow, iCol);
+                    returnBC.imageData[iRow][iCol] = getPixel(iRow, iCol);
                 }
             }
 
-        } catch (CloneNotSupportedException ex) {
-            // Explicitly Do Nothing (don't throw)
+        } catch (CloneNotSupportedException ex) {/* do nothing */}
 
-        }
-
-        // return
         return returnBC;
-
     }
+
 
     public void display() {
         int iRow, iCol;
@@ -222,6 +230,7 @@ class DataMatrix implements BarcodeIO {
         readText(text);
     }
 
+    @Override
     public boolean translateImageToText() {
         String message = "";
         int start = 1; // Ingore the skeleton
@@ -234,31 +243,31 @@ class DataMatrix implements BarcodeIO {
         return false;
     }
 
-    public void displayTextToConsole() {
-        System.out.println("    " + this.text);
-
-    }
-
+    @Override
     public void displayImageToConsole() {
-
+        image.display();
     }
 
-    public boolean scan(BarcodeImage imageIN) {
-        try {
-            this.image = (BarcodeImage) imageIN.clone();
-            cleanImage(); // Adjusting to the left bottom
-            actualHeight = computeSignalHeight();
-            actualWidth = computeSignalWidth();
-        } catch (CloneNotSupportedException e) {
+    @Override
+    public void displayTextToConsole() {
+        System.out.println(text);
+    }
 
-        }
+    @Override
+    public boolean scan(BarcodeImage imageIN) {
+        image = imageIN.clone();
+        cleanImage(); // Adjusting to the left bottom
+        actualHeight = computeSignalHeight();
+        actualWidth = computeSignalWidth();
         return true;
     }
 
-    public boolean readText(String _) {
+    @Override
+    public boolean readText(String toRead) {
         return false;
     }
 
+    @Override
     public boolean generateImageFromText() {
         return false;
     }

@@ -10,6 +10,10 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 class Helper {
+    static String repeatedString(int count, String toRepeat) {
+        return new String(new char[count]).replace("\0", toRepeat);
+    }
+
     static List<String> pad(List<String> list) {
         // pad the right
         int rightPadLen = list.size() > 0 ?
@@ -17,7 +21,7 @@ class Helper {
                 BarcodeImage.MAX_WIDTH;
 
         if (rightPadLen > 0) {
-            String rightPad = new String(new char[rightPadLen]).replace("\0", " ");
+            String rightPad = repeatedString(rightPadLen, " ");
             list.replaceAll((line) -> line += rightPad);
         }
         if (rightPadLen < 0) {
@@ -37,17 +41,19 @@ class Helper {
 
     static List<String> overpopulate(List<String> list) {
         boolean isEven = false;
-        list.add("* *");
-        while (list.size() < BarcodeImage.MAX_HEIGHT) {
+
+        for (int i = 0; i < BarcodeImage.MAX_HEIGHT; i++) {
+            String str = repeatedString(i, "*") + repeatedString((BarcodeImage.MAX_WIDTH - 1) - i, " ");
             if (isEven) {
-                list.add("* *");
+                list.add(str + "*");
                 isEven = false;
             } else {
-                list.add("*  ");
+                list.add(str + " ");
                 isEven = true;
             }
         }
-        list.add("***");
+        list.add(0, "* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *");
+        list.add("*****************************************************************");
         return list;
     }
 
@@ -62,6 +68,35 @@ public class BarcodeImageTest {
     static void displayTest(List<String> lines, BarcodeImage subject) {
         String expect = String.join("\n", Helper.pad(lines)) + "\n";
         assertEquals(expect, ConsoleCapture.out.retrieve((subject::display)));
+    }
+
+    static void getPixelTest(List<String> lines, BarcodeImage subject) {
+        // too low x
+        boolean actual = subject.getPixel(-1, 0);
+
+        // min x
+        actual = subject.getPixel(0, 0);
+
+
+        // max x
+        actual = subject.getPixel(BarcodeImage.MAX_WIDTH, 0);
+
+        // too high x
+        actual = subject.getPixel(BarcodeImage.MAX_WIDTH + 1, 0);
+
+        // too low y
+        actual = subject.getPixel(0, -1);
+
+        // min y
+        actual = subject.getPixel(0, 0);
+
+        // max y
+        actual = subject.getPixel(0, BarcodeImage.MAX_HEIGHT);
+
+        // too high y
+        actual = subject.getPixel(0, BarcodeImage.MAX_HEIGHT + 1);
+
+
     }
 
 
@@ -142,7 +177,9 @@ public class BarcodeImageTest {
 
         @Test
         void oversizedHeightTest() {
-            displayTest(overpopulated, subject);
+            //overpopulated will be rejected, so we expect an empty in actual
+            List<String> expect = new ArrayList<>();
+            displayTest(expect, subject);
         }
 
     }

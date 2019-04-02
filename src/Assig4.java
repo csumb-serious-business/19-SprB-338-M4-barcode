@@ -102,6 +102,7 @@ class BarcodeImage implements Cloneable {
 
         // Todo Check Size
         // for each row in strIn
+        if(checkSize(strIn) == false) return;
         for (int iRow = 0; iRow < strIn.length; iRow++) {
             int numOfColums = strIn[0].length();
 
@@ -122,23 +123,45 @@ class BarcodeImage implements Cloneable {
 
     }
 
-    public BarcodeImage() {
-        for (boolean[] arr2 : imageData) {
-            for (boolean val : arr2) {
-                val = false;
-            }
+	public BarcodeImage(){
+    	for(int i = 0; i < MAX_WIDTH; i++)
+    	{
+    	    for(int j = 0; j < MAX_HEIGHT; j++)
+    	    {
+    	    	setPixel(j, i, false);
+    	    }
+    	}  	
+    }
+	
+    private boolean checkSize(String[] data) {
+        if (data.length > MAX_HEIGHT || data == null) return false;
+        for(String s: data) {
+        	if(s.length() > MAX_WIDTH) return false;
         }
+        return true;
     }
 
+
     boolean setPixel(int row, int col, boolean value) {
-        // Todo Validation
+    	if(row > MAX_HEIGHT || col > MAX_WIDTH || row < 0 || col < 0) return false; 
         imageData[row][col] = value;
         return true;
 
     }
 
     boolean getPixel(int row, int col) {
+    	if(row > MAX_HEIGHT || col > MAX_WIDTH || row < 0 || col < 0) return false;
         return imageData[row][col];
+    }
+    
+    public void displayToConsole() {
+    	for(boolean[]arr: imageData) {
+    		for(boolean val: arr) {
+    			if(val) System.out.print('*');
+    			else System.out.print(' ');
+    		}
+    		System.out.print('\n');
+    	}
     }
 
     @Override
@@ -159,7 +182,7 @@ class BarcodeImage implements Cloneable {
 
         }
 
-        // return the clone
+        // return
         return returnBC;
 
     }

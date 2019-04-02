@@ -164,23 +164,24 @@ class BarcodeImage implements Cloneable {
     }
 
 
-    @Override
-    public BarcodeImage clone() {
-        BarcodeImage clone = null;
-        try {
-            clone = (BarcodeImage) super.clone();
+	@Override
+	public BarcodeImage clone() throws CloneNotSupportedException {
+		BarcodeImage returnBC = null;
+		try {
+			returnBC = (BarcodeImage) super.clone();
 
-            // Deep Copy
-            for (int iRow = 0; iRow < MAX_HEIGHT; iRow++) {
-                for (int iCol = 0; iCol < MAX_WIDTH; iCol++) {
-                    clone.imageData[iRow][iCol] = getPixel(iRow, iCol);
-                }
-            }
+			// Deep Copy
+			for (int iRow = 0; iRow < MAX_HEIGHT; iRow++) {
+				for (int iCol = 0; iCol < MAX_WIDTH; iCol++) {
+					returnBC.imageData[iRow][iCol] = this.getPixel(iRow, iCol);
+				}
+			}
 
-        } catch (CloneNotSupportedException ex) {/* do nothing */}
+		} catch (CloneNotSupportedException ex) {/* do nothing */}
+		// return the clone
+		return returnBC;
 
-        return clone;
-    }
+	}
 
 
     public void display() {
@@ -251,16 +252,18 @@ class DataMatrix implements BarcodeIO {
     }
 
     @Override
-    public boolean scan(BarcodeImage imageIn) {
-        // try/catch not needed since clone doesn't throw
-        this.image = imageIn.clone();
+	public boolean scan(BarcodeImage imageIN) {
+		try {
+			this.image = (BarcodeImage) imageIN.clone();
+			cleanImage(); // Adjusting to the left bottom
+			actualHeight = computeSignalHeight();
+			actualWidth = computeSignalWidth();
+		} catch (CloneNotSupportedException e) {
 
-        cleanImage(); // push to the bottom-left
-        actualHeight = computeSignalHeight();
-        actualWidth = computeSignalWidth();
+		}
+		return true;
+	}
 
-        return true;
-    }
 
     @Override
     public boolean readText(String inputString) {

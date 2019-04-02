@@ -67,31 +67,32 @@ public class Assig4 {
 		            "                                          "
 
 		      };
-		System.out.println("DEBUG::Start of Run");
+		System.out.println("DEBUG::Start of Run img1");
 		BarcodeImage bc = new BarcodeImage(sImageIn);
-		System.out.println("DEBUG::Before just on the Intake");
-		bc.display();
-
-		System.out.println("DEBUG::After Scanning and Cleaing");
 		DataMatrix dm = new DataMatrix(bc);
 
 		// First secret message
 		dm.translateImageToText();
 		dm.displayTextToConsole();
 		dm.displayImageToConsole();
-
+		System.out.println("DEBUG::End of Run");
+		
 		// second secret message
 		bc = new BarcodeImage(sImageIn_2);
 		dm.scan(bc);
+		System.out.println("DEBUG::Start of Run img2");
 		dm.translateImageToText();
 		dm.displayTextToConsole();
 		dm.displayImageToConsole();
+		System.out.println("DEBUG::End of Run");
 
+		System.out.println("DEBUG::Start of Run txt");
 		// create your own message
-		dm.readText("What a great resume builder this is!");
+		dm.readText("You did it!  Great work.  Celebrate.");
 		dm.generateImageFromText();
 		dm.displayTextToConsole();
 		dm.displayImageToConsole();
+		System.out.println("DEBUG::End of Run");
 	}
 }
 
@@ -142,6 +143,7 @@ class BarcodeImage implements Cloneable {
 
 	boolean setPixel(int row, int col, boolean value) {
 		// Todo Validation
+		
 		imageData[row][col] = value;
 		return true;
 
@@ -227,7 +229,7 @@ class DataMatrix implements BarcodeIO {
 
 		text = message;
 
-		return false;
+		return true;
 	}
 
 	public void displayTextToConsole() {
@@ -236,7 +238,7 @@ class DataMatrix implements BarcodeIO {
 	}
 
 	public void displayImageToConsole() {
-
+		image.display();
 	}
 
 	public boolean scan(BarcodeImage imageIN) {
@@ -251,12 +253,35 @@ class DataMatrix implements BarcodeIO {
 		return true;
 	}
 
-	public boolean readText(String _) {
-		return false;
+	public boolean readText(String inputString) 
+	{
+		this.text = inputString ;
+		return true;
 	}
 
 	public boolean generateImageFromText() {
-		return false;
+		  image = new BarcodeImage();
+		  int col = 0;	  
+		  WriteCharToCol(col++, 255);
+	      for (char c : this.text.toCharArray()) {
+	    	  int code = (int)c;
+	          WriteCharToCol(col++, code);
+	       }
+	      WriteCharToCol(col, 170);
+	      for (int x = 0; x <= col-1; x++) {
+		         this.image.setPixel(BarcodeImage.MAX_HEIGHT - 1,x, true);
+		         if(x % 2 == 0)
+		        	 this.image.setPixel( BarcodeImage.MAX_HEIGHT - 10,x, true);
+		         else if(x % 2 != 0){
+		        	 this.image.setPixel( BarcodeImage.MAX_HEIGHT - 10,x, false);
+		         }
+		      }
+
+		
+	      cleanImage();
+	      actualHeight = computeSignalHeight();
+	      actualWidth = computeSignalWidth();
+	      return true;
 	}
 
 	// Private Helpers For image manipulation to move it to the left bottom
@@ -277,12 +302,12 @@ class DataMatrix implements BarcodeIO {
 						// Hold the value of where the first pixel is detected
 						rowStart = indexHorizontal;
 						colStart = indexVertical;
-						break outter;// If detected break out of the outter loop
+						break outter;// If detected break out of the outter loop no need to iterate
 					}
 				}
 			}
 		}
-
+		
 		for (int indexVeriticle = 0; indexVeriticle < BarcodeImage.MAX_HEIGHT; indexVeriticle++) {
 			for (int indexHorizontal = 0; indexHorizontal < BarcodeImage.MAX_WIDTH; indexHorizontal++) {
 				if (rowStart - indexVeriticle >= 0) // Can not be a negative
@@ -310,7 +335,7 @@ class DataMatrix implements BarcodeIO {
 				}
 			}
 		}
-		image.display(); // debugging
+	
 	}
 
 	// Todo: rough idea
@@ -357,7 +382,7 @@ class DataMatrix implements BarcodeIO {
 												// of values
 			}
 		}
-		for (Integer value : l1) { // Interate the list
+		for (Integer value : l1) { // Interate the list add the values 
 			numVal += value;
 		}
 
@@ -365,7 +390,23 @@ class DataMatrix implements BarcodeIO {
 	}
 
 	private boolean WriteCharToCol(int col, int code) {
-		return true;
+	      
+	       int height = BarcodeImage.MAX_HEIGHT - 2; //Top and Bottom excluded
+	       int asciiValue = code; //asc
+	 
+	       byte b1 = (byte) asciiValue;
+	       String s1 = String.format("%8s", Integer.toBinaryString(b1 & 0xFF)).replace(' ', '0');
+	       for (int i = 0; i < s1.length(); i++) {
+	           
+	           if (s1.charAt(i) == '1') { 
+	        	   this.image.setPixel(height-( s1.length()-1-i) ,col, true);
+	           } else {
+	        	   this.image.setPixel(height-( s1.length()-1-i) ,col, false);
+	           }
+	       }
+
+	       return true;
+
 	}
 
 }

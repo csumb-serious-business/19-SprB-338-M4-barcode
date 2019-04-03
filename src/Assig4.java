@@ -5,18 +5,53 @@ Assignment: M4 Optical Barcode Readers
 Date:       4/2/2019
 \* ------------------------------------------------------------------------- */
 
-
+/**
+ * Represents the functionality of a stored Barcode
+ */
 interface BarcodeIO {
-    public boolean scan(BarcodeImage bc);
+    /**
+     * Stores a barcode image
+     *
+     * @param barcodeImage the image to store
+     * @return true if the scan was successful
+     */
+    public boolean scan(BarcodeImage barcodeImage);
 
+    /**
+     * Stores a plaintext message
+     *
+     * @param text the text to store
+     * @return true if the read process succeeded
+     */
     public boolean readText(String text);
 
+    /**
+     * Converts/stores an already stored plaintext message
+     * into its corresponding barcode image
+     *
+     * @return true if successful
+     */
     public boolean generateImageFromText();
 
+
+    /**
+     * Converts/stores an already stored barcode image
+     * into its corresponding plaintext message
+     *
+     * @return true if successful
+     */
     public boolean translateImageToText();
 
+    /**
+     * Prints the contents of the currently stored
+     * plaintext message to the console
+     */
     public void displayTextToConsole();
 
+    /**
+     * Prints the contents of the currently stored
+     * barcode image to the console
+     */
     public void displayImageToConsole();
 
 }
@@ -40,7 +75,6 @@ public class Assig4 {
                 "                                               ",
                 "                                               ",
                 "                                               "
-
         };
 
 
@@ -61,9 +95,7 @@ public class Assig4 {
                 "                                          ",
                 "                                          ",
                 "                                          "
-
         };
-
 
         BarcodeImage bc = new BarcodeImage(IMAGE_1);
         DataMatrix dm = new DataMatrix(bc);
@@ -88,17 +120,34 @@ public class Assig4 {
     }
 }
 
+/**
+ * Represents a 2D dot-matrix pattern or 'barcode image'
+ */
 class BarcodeImage implements Cloneable {
     public static final int MAX_HEIGHT = 30;
     public static final int MAX_WIDTH = 65;
 
     private final boolean[][] imageData;
 
+    /**
+     * Creates a barcode image with empty image data
+     */
+    public BarcodeImage() {
+        imageData = new boolean[MAX_HEIGHT][MAX_WIDTH];
+    }
+
+    /**
+     * Creates a barcode image with a given dataset
+     *
+     * @param strData the dataset to populate this barcode image with
+     *                if the dataset is too large,
+     *                the stored barcode will be empty
+     */
     public BarcodeImage(String[] strData) {
         this();
 
         // guardrail on height
-        if (strData.length > MAX_HEIGHT) {
+        if (!checkSize(strData)) {
             return;
         }
 
@@ -123,34 +172,16 @@ class BarcodeImage implements Cloneable {
 
     }
 
-    public BarcodeImage() {
-        imageData = new boolean[MAX_HEIGHT][MAX_WIDTH];
-    }
-
-    private boolean checkSize(String[] data) {
-        if (data == null || data.length > MAX_HEIGHT) {
-            return false;
-        }
-
-        for (String s : data) {
-            if (s == null || s.length() > MAX_WIDTH) return false;
-        }
-
-        return true;
-    }
-
-
-    boolean setPixel(int row, int col, boolean value) {
-        if (isValidCoordinate(row, col)) {
-            imageData[row][col] = value;
-            return true;
-        }
-        return false;
-    }
-
-    boolean getPixel(int row, int col) {
-        if (isValidCoordinate(row, col)) {
-            return imageData[row][col];
+    /**
+     * Given a row and column, fetches the value at those positions
+     *
+     * @param row    the row of the value to fetch
+     * @param column the column of the value to fetch
+     * @return the found value  or `false` in case of error
+     */
+    boolean getPixel(int row, int column) {
+        if (isValidCoordinate(row, column)) {
+            return imageData[row][column];
         }
 
         // bad practice, false indicates both error & false states
@@ -158,6 +189,53 @@ class BarcodeImage implements Cloneable {
         return false;
     }
 
+    /**
+     * Overwrites the value at a particular row/column intersection
+     *
+     * @param row    the row of the value to overwrite
+     * @param column the column of the value to overwrite
+     * @param value  the value to write at that position
+     * @return true if write was succesful
+     */
+    boolean setPixel(int row, int column, boolean value) {
+        if (isValidCoordinate(row, column)) {
+            imageData[row][column] = value;
+            return true;
+        }
+        return false;
+    }
+
+
+    /**
+     * Validates a whether a given `String[]`
+     * meets nullability & size requirements.
+     *
+     * @param data the data to validate
+     * @return true if data meets the requirements
+     */
+    private boolean checkSize(String[] data) {
+        if (data == null || data.length > MAX_HEIGHT) {
+            return false;
+        }
+
+        for (String s : data) {
+            if (s == null || s.length() > MAX_WIDTH) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+
+    /**
+     * Checks whether a given pair of coordinates
+     * represents a valid position in this barcode image
+     *
+     * @param row    the row to check
+     * @param column the column to check
+     * @return true if position is valid
+     */
     boolean isValidCoordinate(int row, int column) {
         return 0 <= column && column < MAX_WIDTH &&
                 0 <= row && row < MAX_HEIGHT;
@@ -166,25 +244,22 @@ class BarcodeImage implements Cloneable {
 
     @Override
     public BarcodeImage clone() throws CloneNotSupportedException {
-    	BarcodeImage returnBC = null;
-    	try {
-    		returnBC = (BarcodeImage) super.clone();
-    		
-    		// Deep Copy
-    		for (int iRow = 0; iRow < MAX_HEIGHT; iRow++) {
-    			for (int iCol = 0; iCol < MAX_WIDTH; iCol++) {
-    				returnBC.imageData[iRow][iCol] = this.getPixel(iRow, iCol);
-    				}
-    			}
+        BarcodeImage cloned = (BarcodeImage) super.clone();
 
-    	} catch (CloneNotSupportedException ex) {/* do nothing */}
-    	// return the clone
-    	return returnBC;
-    	
+        // Deep Copy
+        for (int iRow = 0; iRow < MAX_HEIGHT; iRow++) {
+            for (int iCol = 0; iCol < MAX_WIDTH; iCol++) {
+                cloned.imageData[iRow][iCol] = this.getPixel(iRow, iCol);
+            }
+        }
+
+        return cloned;
     }
 
-
-    public void display() {
+    /**
+     * Prints this barcode image
+     */
+    public void displayToConsole() {
         for (int r = 0; r < MAX_HEIGHT; r++) {
             for (int c = 0; c < MAX_WIDTH; c++) {
                 if (getPixel(r, c)) {
@@ -199,16 +274,23 @@ class BarcodeImage implements Cloneable {
 
 }
 
+/**
+ * Represents a pseudo data matrix lacking error correction and
+ * encoding functionality.
+ * Holds a BarcodeImage and its textual representation
+ */
 class DataMatrix implements BarcodeIO {
     public static final char BLACK_CHAR = '*';
     public static final char WHITE_CHAR = ' ';
 
-
     private BarcodeImage image;
+    private String text;
     private int actualWidth;
     private int actualHeight;
-    private String text;
 
+    /**
+     * Creates an empty data matrix
+     */
     public DataMatrix() {
         image = new BarcodeImage();
         text = "";
@@ -217,58 +299,98 @@ class DataMatrix implements BarcodeIO {
 
     }
 
-    public DataMatrix(BarcodeImage imageIn) {
+    /**
+     * Creates a data matrix with a given barcode image
+     * the plaintext of the image will remain
+     * empty until `scan` is called
+     *
+     * @param image the image to populate into this data matrix
+     */
+    public DataMatrix(BarcodeImage image) {
         this();
-        scan(imageIn);
+        scan(image);
     }
 
-    public DataMatrix(String textIn) {
+    /**
+     * Creates a data matrix with a given plaintext
+     * the barcode image will remain
+     * empty until `readText`is called
+     *
+     * @param text the text to populate into this data matrix
+     */
+    public DataMatrix(String text) {
         this();
-        readText(textIn);
+        readText(text);
     }
 
     @Override
-    public boolean translateImageToText() {
-        StringBuilder message = new StringBuilder();
-        int start = 1; // Ingore the skeleton
-        for (int iOfColumns = start; iOfColumns < actualWidth - 1; iOfColumns++) {
-            message.append(readCharfromCol(iOfColumns));
+    public boolean scan(BarcodeImage barcodeImage) {
+        try {
+            image = barcodeImage.clone();
+            cleanImage(); // Adjusting to the left bottom
+            actualHeight = computeSignalHeight();
+            actualWidth = computeSignalWidth();
+        } catch (CloneNotSupportedException e) { /* do nothing */ }
+        return true;
+    }
+
+    @Override
+    public boolean readText(String text) {
+        // todo need guardrail, we know that width < 63
+        this.text = text;
+        return true;
+    }
+
+    /**
+     * @return actualHeight of the DataMatrix
+     */
+    public int getActualHeight() {
+        return actualHeight;
+    }
+
+    /**
+     * @return actualWidth of the DataMatrix
+     */
+    public int getActualWidth() {
+        return actualWidth;
+    }
+
+    /**
+     * Detects the rightmost edge of the actual image within barcode image
+     * to calculate the actual width of the image
+     *
+     * @return the calculated width
+     */
+    private int computeSignalWidth() {
+        //todo how is this working?
+        int leftCornerRow = BarcodeImage.MAX_HEIGHT - 1;
+        int widthCount = 0;
+        // keep going right
+        for (int indexColumn = 0; indexColumn < BarcodeImage.MAX_WIDTH; indexColumn++) {
+            if (image.getPixel(leftCornerRow, indexColumn)) {
+                widthCount++;
+            }
         }
-
-        text = message.toString();
-
-        return true;
+        return widthCount;
     }
 
-    @Override
-    public void displayTextToConsole() {
-        System.out.println(text);
-
-    }
-
-    @Override
-    public void displayImageToConsole() {
-        image.display();
-    }
-
-    @Override
-    public boolean scan(BarcodeImage imageIN) {
-    	try {
-    		this.image = (BarcodeImage) imageIN.clone();
-    		cleanImage(); // Adjusting to the left bottom
-    		actualHeight = computeSignalHeight();
-    		actualWidth = computeSignalWidth();
-    	} catch (CloneNotSupportedException e) {
-
-    	}
-    	return true;
-    }
-
-
-    @Override
-    public boolean readText(String inputString) {
-        this.text = inputString;
-        return true;
+    /**
+     * Detects the topmost edge of the actual image within image
+     * to calculate the actual height of the image
+     *
+     * @return the calculated height
+     */
+    private int computeSignalHeight() {
+        //todo how is this working?
+        int leftCornerCol = 0;
+        int heightCount = 0;
+        // keep going up
+        for (int indexRow = 0; indexRow < BarcodeImage.MAX_HEIGHT; indexRow++) {
+            if (image.getPixel(indexRow, leftCornerCol)) {
+                heightCount++;
+            }
+        }
+        return heightCount;
     }
 
     @Override
@@ -297,76 +419,102 @@ class DataMatrix implements BarcodeIO {
         return true;
     }
 
-    // Private Helpers For image manipulation to move it to the left bottom
+
+    @Override
+    public boolean translateImageToText() {
+        StringBuilder message = new StringBuilder();
+        int start = 1; // ingore the skeleton
+        for (int iOfColumns = start; iOfColumns < actualWidth - 1; iOfColumns++) {
+            message.append(readCharfromCol(iOfColumns));
+        }
+
+        text = message.toString();
+
+        return true;
+    }
+
+    @Override
+    public void displayTextToConsole() {
+        System.out.println(text);
+
+    }
+
+    @Override
+    public void displayImageToConsole() {
+        image.displayToConsole();
+    }
+
+
+    /**
+     * Detects the left top, right and bottom edges of the `image` within
+     * the barcode image and transposes that image such that
+     * the left and bottom edges of both images align
+     * with that of the barcode image.
+     */
     private void cleanImage() {
-        // Temp Holders to get the Starting point of the image before the
-        // optimiztion
-        int rowStart = 0, colStart = 0;
+        int rowStart = 0;
+        int colStart = 0;
 
         //todo labels are disallowed, call a method instead
-        outter:
-        for (int indexHorizontal = BarcodeImage.MAX_HEIGHT - 1; indexHorizontal >= 0; indexHorizontal--) {
-
-            for (int indexVertical = 0; indexVertical < BarcodeImage.MAX_WIDTH; indexVertical++) {
-                // pixel detected
-                if (image.getPixel(indexHorizontal, indexVertical)) {
+        outer:
+        for (int r = BarcodeImage.MAX_HEIGHT - 1; r >= 0; r--) {
+            for (int c = 0; c < BarcodeImage.MAX_WIDTH; c++) {
+                // pixel detected?
+                if (image.getPixel(r, c)) {
                     // at the start?
                     //todo lint says always true
                     if (rowStart == 0 && colStart == 0) {
                         // Hold the value of where the first pixel is detected
-                        rowStart = indexHorizontal;
-                        colStart = indexVertical;
-                        break outter;// If detected break out of the outer loop no need to iterate
+                        rowStart = r;
+                        colStart = c;
+                        break outer;// If detected break out of the outer loop no need to iterate
                     }
                 }
             }
         }
 
-        for (int indexVeriticle = 0; indexVeriticle < BarcodeImage.MAX_HEIGHT; indexVeriticle++) {
-            for (int indexHorizontal = 0; indexHorizontal < BarcodeImage.MAX_WIDTH; indexHorizontal++) {
+        for (int r = 0; r < BarcodeImage.MAX_HEIGHT; r++) {
+            for (int c = 0; c < BarcodeImage.MAX_WIDTH; c++) {
                 // must be non-negative
-                if (rowStart - indexVeriticle >= 0) {
+                if (rowStart - r >= 0) {
                     // must be less than width
-                    if (colStart + indexHorizontal < BarcodeImage.MAX_WIDTH) {
+                    if (colStart + c < BarcodeImage.MAX_WIDTH) {
                         // Map the old to new position, start at top
-                        int newRow = BarcodeImage.MAX_HEIGHT - indexVeriticle - 1;
+                        int newRow = BarcodeImage.MAX_HEIGHT - r - 1;
 
-                        int oldRow = rowStart - indexVeriticle; // Go Up
-                        int oldCol = colStart + indexHorizontal; // Go Right
+                        int oldRow = rowStart - r; // Go Up
+                        int oldCol = colStart + c; // Go Right
 
-                        image.setPixel(newRow, indexHorizontal, image.getPixel(oldRow, oldCol));
+                        image.setPixel(newRow, c, image.getPixel(oldRow, oldCol));
                     }
                 }
             }
         }
-
     }
 
-    int computeSignalWidth() {
-        int leftCornerRow = BarcodeImage.MAX_HEIGHT - 1;
-        int widthCount = 0;
-        // keep going right
-        for (int indexColumn = 0; indexColumn < BarcodeImage.MAX_WIDTH; indexColumn++) {
-            if (image.getPixel(leftCornerRow, indexColumn)) {
-                widthCount++;
-            }
-        }
-        return widthCount;
+    /**
+     * Prints the uncropped (raw) barcode image
+     */
+    public void displayRawImage() {
+        image.displayToConsole();
     }
 
-    int computeSignalHeight() {
-        int leftCornerCol = 0;
-        int heightCount = 0;
-        // keep going up
-        for (int indexRow = 0; indexRow < BarcodeImage.MAX_HEIGHT; indexRow++) {
-            if (image.getPixel(indexRow, leftCornerCol)) {
-                heightCount++;
-            }
-        }
-        return heightCount;
+    /**
+     * Resets all pixels in barcode image to `false` (blank)
+     */
+    public void clearImage() {
+        image = new BarcodeImage();
     }
 
-    private char readCharfromCol(int col) {
+
+    /**
+     * Fetches the corresponding ascii character for a given column
+     *
+     * @param column the column to decode into a character
+     * @return the corresponding decoded character from the sum of the
+     * columns values
+     */
+    private char readCharfromCol(int column) {
         int sum = 0;
 
         // Exclude bottom and top
@@ -377,7 +525,7 @@ class DataMatrix implements BarcodeIO {
             int nRow = adjustedRowIndex - (i + 1);
 
             // if pixel is populated, add it
-            if (image.getPixel(nRow, col)) {
+            if (image.getPixel(nRow, column)) {
                 sum += (int) (Math.pow(2, i));
             }
         }
@@ -386,7 +534,15 @@ class DataMatrix implements BarcodeIO {
         return ((char) sum);
     }
 
-    private boolean WriteCharToCol(int col, int ascii) {
+    /**
+     * Writes the corresponding boolean sequence into a column in
+     * the barcode image for a given coded ascii character
+     *
+     * @param column the column to write into
+     * @param ascii  the ascii character to encode
+     * @return true if the write was successful
+     */
+    private boolean WriteCharToCol(int column, int ascii) {
         // todo guardrail -> return false
 
         // Exclude bottom and top
@@ -399,28 +555,14 @@ class DataMatrix implements BarcodeIO {
             int row = height - (s1.length() - 1 - i);
 
             if (s1.charAt(i) == '1') {
-                image.setPixel(row, col, true);
+                image.setPixel(row, column, true);
             } else {
-                image.setPixel(row, col, false);
+                image.setPixel(row, column, false);
             }
         }
 
         return true;
 
-    }
-
-    /**
-     * @return actualHeight of the DataMatrix
-     */
-    public int getActualHeight() {
-        return actualHeight;
-    }
-
-    /**
-     * @return actualWidth of the DataMatrix
-     */
-    public int getActualWidth() {
-        return actualWidth;
     }
 
 

@@ -44,6 +44,8 @@ public class BarcodeImageTest {
                 {"populated", new BarcodeImageTestData(IMAGE_NORMAL)},
                 {"too wide", new BarcodeImageTestData(IMAGE_OVERSIZED_WIDTH)},
                 {"too tall", new BarcodeImageTestData(IMAGE_OVERSIZED_HEIGHT)}
+                // todo: add 30x65 size & rename populated -> some filled
+                // todo: a 1x1, 2x2 & 3x3 sizes
         };
     }
 
@@ -80,17 +82,17 @@ public class BarcodeImageTest {
     }
 
     @Test(dataProvider = "images")
-    public void cloneTest(String name, BarcodeImageTestData data) {
-        String expect = ConsoleCapture.out.retrieve(data.subject::display);
+    public void cloneTest(String name, BarcodeImageTestData data) throws CloneNotSupportedException {
+        String expect = ConsoleCapture.out.retrieve(data.subject::displayToConsole);
         BarcodeImage clone = data.subject.clone();
-        String actual = ConsoleCapture.out.retrieve(clone::display);
+        String actual = ConsoleCapture.out.retrieve(clone::displayToConsole);
         assertEquals(actual, expect);
     }
 
     @Test(dataProvider = "images")
     public void displayTest(String name, BarcodeImageTestData data) {
         String expect = String.join("\n", data.padded) + "\n";
-        String actual = ConsoleCapture.out.retrieve(data.subject::display);
+        String actual = ConsoleCapture.out.retrieve(data.subject::displayToConsole);
         assertEquals(actual, expect);
 
     }

@@ -455,19 +455,16 @@ class DataMatrix implements BarcodeIO {
         int rowStart = 0;
         int colStart = 0;
 
-        //todo labels are disallowed, call a method instead
-        outer:
         for (int r = BarcodeImage.MAX_HEIGHT - 1; r >= 0; r--) {
             for (int c = 0; c < BarcodeImage.MAX_WIDTH; c++) {
                 // pixel detected?
                 if (image.getPixel(r, c)) {
                     // at the start?
-                    //todo lint says always true
                     if (rowStart == 0 && colStart == 0) {
                         // Hold the value of where the first pixel is detected
                         rowStart = r;
                         colStart = c;
-                        break outer;// If detected break out of the outer loop no need to iterate
+                        break;
                     }
                 }
             }

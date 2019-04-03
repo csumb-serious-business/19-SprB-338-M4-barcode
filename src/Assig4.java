@@ -155,7 +155,6 @@ class BarcodeImage implements Cloneable {
         for (int r = 0; r < strData.length; r++) {
             char[] raw = strData[r].toCharArray();
 
-            //TODO this looks too complex. Traversing forward when need reverse?
             int rowIndex = MAX_HEIGHT - (strData.length - r);
 
             // for each column
@@ -336,7 +335,6 @@ class DataMatrix implements BarcodeIO {
 
     @Override
     public boolean readText(String text) {
-        // todo need guardrail, we know that width < 63
         this.text = text;
         return true;
     }
@@ -362,7 +360,6 @@ class DataMatrix implements BarcodeIO {
      * @return the calculated width
      */
     private int computeSignalWidth() {
-        //todo how is this working?
         int leftCornerRow = BarcodeImage.MAX_HEIGHT - 1;
         int widthCount = 0;
         // keep going right
@@ -381,7 +378,6 @@ class DataMatrix implements BarcodeIO {
      * @return the calculated height
      */
     private int computeSignalHeight() {
-        //todo how is this working?
         int leftCornerCol = 0;
         int heightCount = 0;
         // keep going up
@@ -540,7 +536,6 @@ class DataMatrix implements BarcodeIO {
      * @return true if the write was successful
      */
     private boolean WriteCharToCol(int column, int ascii) {
-        // todo guardrail -> return false
 
         // Exclude bottom and top
         int height = BarcodeImage.MAX_HEIGHT - 2;
